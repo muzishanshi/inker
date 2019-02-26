@@ -23,9 +23,9 @@ A InkerForTypecho Template From tongleer.com
 
 如果有增加功能的需求，在这里
 
-https://www.tleidc.com
+https://weidian.com/?userid=2055073
 
-右侧微店处购买产品，之后在以上微信公众号留言，和作者取得联系。
+购买零食后在以上微信公众号留言，和作者取得联系。
 
 # 模板特点
  - 支持pjax、前台登陆、手机登陆、邮箱登陆、QQ登陆、微博登陆、图片验证码、短信验证码，并后台可控制开启状态。
