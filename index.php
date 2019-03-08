@@ -34,7 +34,15 @@ $this->need('header.php');
 							</div>
 							<div class="list_user_info">
 								<a href="<?php $this->author->permalink(); ?>">
-									<span class="list_user_head" style="background-image: url(<?php echo gravatarUrl($this->author->mail,30,"X","",true); ?>"></span>
+									<?php
+									$host = 'https://secure.gravatar.com';
+									$url = '/avatar/';
+									$size = '50';
+									$rating = 'g';
+									$hash = md5(strtolower($this->author->mail));
+									$avatar = $host . $url . $hash . '?s=' . $size . '&r=' . $rating . '&d=mm';
+									?>
+									<span class="list_user_head" style="background-image: url(<?php echo $avatar; ?>"></span>
 								</a>
 								<span class="list_user_name"><?php $this->author();?></span>
 							</div>
