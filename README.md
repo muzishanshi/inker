@@ -57,7 +57,7 @@ https://weidian.com/?userid=2055073
 
  - 本主题限个人使用，公开发布请注明原作者：二呆，及链接：http://www.tongleer.com
 
- - 如果你喜欢这个主题，别忘记给我打赏哦：http://api.tongleer.com/web/paycode.php
+ - 如果你喜欢这个主题，别忘记给我打赏哦：http://api.tongleer.com/web/pay.php
  
  - 如果遇到bug或者使用问题，欢迎给我来email：diamond@tongleer.com
  
