@@ -61,7 +61,7 @@ https://weidian.com/?userid=2055073
  
  - 如果遇到bug或者使用问题，欢迎给我来email：diamond@tongleer.com
  
- - Q群：770956878
+ - 1元入群：http://joke.tongleer.com/373.html
 
 # 官方演示
 
