@@ -1,6 +1,6 @@
 <?php
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
-define('INKER_VERSION', '1');
+define('INKER_VERSION', '2');
 require_once("libs/themeOptions.php");
 require_once("libs/themeOptionsFunction.php");
 

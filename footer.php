@@ -33,7 +33,7 @@
 		<script src="<?php $this->options->themeUrl('assets/js/gift-show.js'); ?>"></script>
 		<script src="<?php $this->options->themeUrl('assets/js/util.js'); ?>"></script>
 		<?php $this->footer(); ?>
-		<script src="https://cdn.bootcss.com/layer/3.1.0/layer.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/layer/2.3/layer.js"></script>
 		<?php include("assets/js/base.js.php");?>
 		<?php include("assets/js/ajaxComment.js.php");?>
 		<?php

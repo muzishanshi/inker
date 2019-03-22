@@ -4,7 +4,7 @@
  * 这是一个来自同乐儿的Typecho版本的映客主题模板。
  * @package inker for typecho 映客主题模板
  * @author 二呆
- * @version 1.0.1
+ * @version 1.0.2
  * @link http://www.tongleer.com/
  */
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
