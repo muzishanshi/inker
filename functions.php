@@ -213,37 +213,75 @@ function gravatarUrl($mail, $size, $rating, $default, $isSecure = false)
 
 //获取文章附件图
 function getPostAttImg($obj) {
-	$stack = $obj->attachments()->stack;
 	$atts = array();
-	for($i = 0; $i < count($stack); $i++) {
-		$att = $stack[$i]['attachment'];
-		if($att->isImage) {
-			$atts[] = array('name' => $att->name, 'url' => $att->url);
-        }
+	if(!empty($obj->attachments())){
+		$stack = $obj->attachments()->stack;
+		for($i = 0; $i < count($stack); $i++) {
+			$att = $stack[$i]['attachment'];
+			if($att->isImage) {
+				$atts[] = array('name' => $att->name, 'url' => $att->url);
+			}
+		}
+	}else{
+		$db = Typecho_Db::get();
+		$rs = $db->fetchAll($db->select('table.contents.text')
+				->from('table.contents')
+				->where('table.contents.parent=?', $obj->cid)
+				->order('table.contents.cid', Typecho_Db::SORT_ASC));
+		foreach($rs as $attach) {
+			$attach = unserialize($attach['text']);
+			if($attach['mime'] == 'image/jpeg') {
+				$queryPlugins= $db->select('value')->from('table.options')->where('name = ?', 'plugins'); 
+				$rowPlugins = $db->fetchRow($queryPlugins);
+				$plugins=@unserialize($rowPlugins['value']);
+				if(isset($plugins['activated']['WeiboFile'])){
+					$atts[] = array('name' => $attach['name'], 'url' => 'https://ws3.sinaimg.cn/large/'.$attach['path'].'.jpg');
+				}else{
+					$query= $db->select('value')->from('table.options')->where('name = ?', 'siteUrl'); 
+					$row = $db->fetchRow($query);
+					$atts[] = array('name' => $attach['name'], 'url' => $row["value"].$attach['path']);
+				}
+			}
+		}
 	}
 	return $atts;
 }
 
 //获取文章内容图
 function getPostHtmImg($obj) {
-	preg_match_all( "/<[img|IMG].*?src=[\'|\"](.*?)[\'|\"].*?[\/]?>/", $obj->content, $matches);
+	$options = Typecho_Widget::widget('Widget_Options');
+	if(!empty($obj->title)){
+		$content=$obj->content;
+		$title=$obj->title;
+	}else{
+		$content=Markdown::convert($obj);
+		$title="";
+	}
+	preg_match_all( "/<[img|IMG].*?src=[\'|\"](.*?)[\'|\"].*?[\/]?>/", $content, $matches);
 	$atts = array();
 	if(isset($matches[1][0])) {
 		for($i = 0; $i < count($matches[1]); $i++) {
-			$atts[] = array('name' => $obj->title.' ['.($i + 1).']', 'url' => $matches[1][$i]);
+			$atts[] = array('name' => $title.' ['.($i + 1).']', 'url' => $matches[1][$i]);
 		}
-    }
+    }else{
+		$atts[] = array('name' => $title, 'url' => $options->themeUrl."/assets/images/thumbnail.png");
+	}
 	return  count($atts) ? $atts : NULL;
 }
 
 //获取文章图片 整合 getPostAttImg() 与 getPostHtmImg()
 function getPostImg($obj) {
+	if(!empty($obj->title)){
+		$src=$obj->fields->src;
+	}else{
+		$src=0;
+	}
 	$imgs = array();
-	if($obj->fields->src == 0) {
-		$imgs = getPostAttImg($obj);
-	}elseif($obj->fields->src == 1) {
+	if($src == 0) {
 		$imgs = getPostHtmImg($obj);
-	}elseif($obj->fields->src == 2) {
+	}elseif($src == 1) {
+		$imgs = getPostAttImg($obj);
+	}elseif($src == 2) {
 		$imgs = array_merge(getPostHtmImg($obj), getPostAttImg($obj));
 	}
 	return $imgs;

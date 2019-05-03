@@ -81,7 +81,7 @@ function themeConfig($form) {
 	
 	$tools->checkbox("功能开关",
     array(
-        'isPjax' => _t('是否开启isPjax'),
+        'isPjax' => _t('是否开启Pjax'),
 		'isLogin' => _t('是否开启前台登陆'),
 		'isPhoneLogin' => _t('是否开启前台手机号登陆'),
 		'isMailLogin' => _t('是否开启前台邮箱登陆'),
@@ -310,10 +310,10 @@ function themeConfig($form) {
 }
 
 function themeFields($layout) {
-	$src = new Typecho_Widget_Helper_Form_Element_Select('src', array(_t('附件'), _t('内容'), _t('附件+内容')), NULL, _t('图片源'), _t('选择前台展示的图片源（若选择[附件+内容]则内容图片在前）'));
+	$src = new Typecho_Widget_Helper_Form_Element_Select('src', array(_t('内容'), _t('附件'), _t('附件+内容')), NULL, _t('图片源'), _t('选择前台展示的图片源（若选择[附件+内容]则内容图片在前）'));
 	$layout->addItem($src);
 	
-	$thumb = new Typecho_Widget_Helper_Form_Element_Text('thumb', NULL, NULL, _t('封面图片'), _t('在这里填写封面图片的地址（留空将自动获取第一个附件图片）'));
+	$thumb = new Typecho_Widget_Helper_Form_Element_Text('thumb', NULL, NULL, _t('封面图片'), _t('在这里填写封面图片的地址（留空将自动获取第一个附件或内容图片，且非本地附件须填写此处封面地址。）'));
 	$layout->addItem($thumb);
 	
 	$video = new Typecho_Widget_Helper_Form_Element_Text('video', NULL, NULL, _t('视频地址'), _t('在这里填写视频的地址（留空不显示）'));
