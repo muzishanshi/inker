@@ -8,6 +8,7 @@
         <meta name="description" itemprop="description" content="<?php $this->options->description(); ?>">
 		<meta name="keywords" content="<?php $this->options->keywords(); ?>">
 		<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="referrer" content="same-origin">
         <title><?php $this->archiveTitle(array(
             'category'  =>  _t('分类 %s 下的文章'),
             'search'    =>  _t('包含关键字 %s 的文章'),
