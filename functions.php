@@ -214,7 +214,7 @@ function gravatarUrl($mail, $size, $rating, $default, $isSecure = false)
 //获取文章附件图
 function getPostAttImg($obj) {
 	$atts = array();
-	if(!empty($obj->attachments())){
+	if(!empty($obj->attachments()->stack)){
 		$stack = $obj->attachments()->stack;
 		for($i = 0; $i < count($stack); $i++) {
 			$att = $stack[$i]['attachment'];
