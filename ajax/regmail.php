@@ -31,7 +31,7 @@ if(empty($themeOptions["switch"])||(!empty($themeOptions["switch"]) && in_array(
 	}
 }
 if(empty($themeOptions["switch"])||(!empty($themeOptions["switch"]) && in_array('isShowSmsCode', $themeOptions["switch"]))){
-	if(isset($_SESSION['mailcode'])&&strcasecmp($_SESSION['mailcode'],$code)!=0){
+	if(!isset($_SESSION['mailcode'])||strcasecmp($_SESSION['mailcode'],$code)!=0){
 		$json=json_encode(array("error_code"=>-1,"message"=>"邮箱验证码错误"));
 		echo $json;
 		exit;
