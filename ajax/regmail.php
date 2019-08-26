@@ -37,7 +37,7 @@ if(empty($themeOptions["switch"])||(!empty($themeOptions["switch"]) && in_array(
 		exit;
 	}
 	if (isset($_SESSION["newmail"])&&$cnphone!=$_SESSION["newmail"]) {
-		$json=json_encode(array("error_code"=>-8,"message"=>"填写手机号和发送验证码的手机号不一致"));
+		$json=json_encode(array("error_code"=>-8,"message"=>"填写邮箱和发送验证码的邮箱不一致"));
 		echo $json;
 		exit;
 	}
