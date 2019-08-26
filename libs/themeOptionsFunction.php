@@ -89,7 +89,7 @@ function themeConfig($form) {
 		'isWeiboLogin' => _t('是否开启前台微博登陆'),
 		'isShowImgCode' => _t('是否显示图片验证码'),
 		'isShowSmsCode' => _t('是否显示短信验证码')
-    ), "switch");
+    ), "switch","启用手机登陆后如果有手机用户注册会在用户数据表中添加phone字段");
 	
 	$tools->input("打赏二维码图片地址","dashang_qrcode","在这里填入打赏二维码图片地址的地址");
 	
@@ -100,13 +100,15 @@ function themeConfig($form) {
         <div class="mdui-panel-item-header">登陆配置</div>
         <div class="mdui-panel-item-body">';
 		
-	$tools->input("smtp服务器(已验证QQ企业邮箱和126邮箱可成功发送)","mailsmtp",_t("用于邮箱注册发送邮箱验证码及其他邮件服务的smtp服务器地址，QQ企业邮箱：ssl://smtp.exmail.qq.com:465；126邮箱：smtp.126.com:25"));
+	$tools->input("smtp服务器(已验证QQ企业邮箱和126邮箱可成功发送)","mailsmtp",_t("用于邮箱注册发送邮箱验证码及其他邮件服务的smtp服务器地址，QQ企业邮箱：smtp.exmail.qq.com:465；QQ个人邮箱：smtp.qq.com:465/25；126邮箱：smtp.126.com:465/25"));
 	
 	$tools->input("smtp服务器端口","mailport","用于邮箱注册发送邮箱验证码及其他邮件服务的smtp服务器端口");
 	
 	$tools->input("smtp服务器邮箱用户名","mailuser","用于邮箱注册发送邮箱验证码及其他邮件服务的smtp服务器邮箱用户名");
 	
 	$tools->input("smtp服务器邮箱密码","mailpass","用于邮箱注册发送邮箱验证码及其他邮件服务的smtp服务器邮箱密码");
+	
+	$tools->radio("smtp服务器安全类型",array("ssl"=>"SSL","tls"=>"TLS","none"=>"无"),"mailsecure");
 		
 	$tools->input("阿里云短信服务AccessKeyID","aliyun_accessKeyId","阿里云短信服务AccessKeyID");
 	
@@ -206,7 +208,7 @@ function themeConfig($form) {
 	$dashang_qrcode = new Typecho_Widget_Helper_Form_Element_Text('dashang_qrcode', array("value"), 'https://ws3.sinaimg.cn/large/005V7SQ5ly1g03e2k3ms3j303w03wt8m.jpg', _t('打赏二维码图片地址'), _t('在这里填入打赏二维码图片地址的地址'));
 	$form->addInput($dashang_qrcode);
 	
-	$mailsmtp = new Typecho_Widget_Helper_Form_Element_Text('mailsmtp', array("value"), 'ssl://smtp.exmail.qq.com', _t('smtp服务器(已验证QQ企业邮箱和126邮箱可成功发送)'), _t('用于邮箱注册发送邮箱验证码及其他邮件服务的smtp服务器地址，QQ企业邮箱：ssl://smtp.exmail.qq.com:465；126邮箱：smtp.126.com:25'));
+	$mailsmtp = new Typecho_Widget_Helper_Form_Element_Text('mailsmtp', array("value"), 'smtp.exmail.qq.com', _t('smtp服务器(已验证QQ企业邮箱和126邮箱可成功发送)'), _t('用于邮箱注册发送邮箱验证码及其他邮件服务的smtp服务器地址，QQ企业邮箱：smtp.exmail.qq.com:465；QQ个人邮箱：smtp.qq.com:465/25；126邮箱：smtp.126.com:465/25'));
 	$form->addInput($mailsmtp);
 	
 	$mailport = new Typecho_Widget_Helper_Form_Element_Text('mailport', array("value"), '465', _t('smtp服务器端口'), _t('用于邮箱注册发送邮箱验证码及其他邮件服务的smtp服务器端口'));
@@ -217,6 +219,13 @@ function themeConfig($form) {
 	
 	$mailpass = new Typecho_Widget_Helper_Form_Element_Password('mailpass', null, '', _t('smtp服务器邮箱密码'), _t('用于邮箱注册发送邮箱验证码及其他邮件服务的smtp服务器邮箱密码'));
 	$form->addInput($mailpass);
+	
+	$mailsecure = new Typecho_Widget_Helper_Form_Element_Radio('mailsecure', array(
+		'ssl'=>_t('SSL'),
+		'tls'=>_t('TLS'),
+		'none'=>_t('无')
+	), 'ssl', _t('smtp服务器安全类型'), _t(""));
+	$form->addInput($mailsecure);
 	
 	$aliyun_accessKeyId = new Typecho_Widget_Helper_Form_Element_Text('aliyun_accessKeyId', array('value'), '', _t('阿里云短信服务AccessKeyID'), _t('阿里云短信服务AccessKeyID'));
     $form->addInput($aliyun_accessKeyId);

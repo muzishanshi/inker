@@ -124,18 +124,19 @@ if($action=="weibocallback"){
 		$this->response->redirect($this->options->index);
 	}
 }else if($action=="qqcallback"){
+	session_start();
 	$code = isset($_GET['code']) ? addslashes(trim($_GET['code'])) : '';
 	$state = isset($_GET['state']) ? addslashes(trim($_GET['state'])) : '';
 	if($code!=''&&$state!=''){
-		$configdir=dirname(__FILE__).'/config/';
-		$config_oauth_qq=@unserialize(ltrim(file_get_contents($configdir.'config_oauth_qq.php'),'<?php die; ?>'));
-		if(!$state || $state != $config_oauth_qq['qqstate']){
+		$theme = new themeOptions;
+		$themeOptions=$theme->getThemeOptions();
+		if(!$state || $state != $_SESSION["qqstate"]){
 			die('30001');
 		}
-		$tokenData=findQQAccessToken($config_oauth_qq['qq_appid'],$config_oauth_qq['qq_appkey'],$config_oauth_qq['qq_callback'],$_GET['code']);
+		$tokenData=findQQAccessToken($themeOptions['qq_appid'],$themeOptions['qq_appkey'],$themeOptions['qq_callback'],$_GET['code']);
 		$qqUserData=findQQOpenID($tokenData['access_token']);
 		$oauthid=$qqUserData->openid;
-		$userinfo=findQQUserInfo($tokenData['access_token'],$config_oauth_qq['qq_appid'],$oauthid);
+		$userinfo=findQQUserInfo($tokenData['access_token'],$themeOptions['qq_appid'],$oauthid);
 		
 		$name=$userinfo['nickname'];
 		$gender=$userinfo['gender'];

@@ -23,11 +23,6 @@ if(!preg_match("/^1[34578]\d{9}$/", $cnphone)){
 	echo $json;
 	exit;
 }
-if(strlen($pwd)<6){
-	$json=json_encode(array("error_code"=>-5,"message"=>"请输入长度不小于6位的密码"));
-	echo $json;
-	exit;
-}
 if(empty($themeOptions["switch"])||(!empty($themeOptions["switch"]) && in_array('isShowImgCode', $themeOptions["switch"]))){
 	if(strcasecmp($_SESSION['code'],$imgcode)!=0){
 		$json=json_encode(array("error_code"=>-7,"message"=>"图文验证码错误"));
@@ -36,18 +31,26 @@ if(empty($themeOptions["switch"])||(!empty($themeOptions["switch"]) && in_array(
 	}
 }
 if(empty($themeOptions["switch"])||(!empty($themeOptions["switch"]) && in_array('isShowSmsCode', $themeOptions["switch"]))){
-	if(!isset($_SESSION['smscode'])||strcasecmp($_SESSION['smscode'],$code)!=0){
+	if(!isset($_SESSION['phonecode'])||strcasecmp($_SESSION['phonecode'],$code)!=0){
 		$json=json_encode(array("error_code"=>-1,"message"=>"手机验证码错误"));
 		echo $json;
 		exit;
 	}
+	if (isset($_SESSION["newphone"])&&$cnphone!=$_SESSION["newphone"]) {
+		$json=json_encode(array("error_code"=>-8,"message"=>"填写手机号和发送验证码的手机号不一致"));
+		echo $json;
+		exit;
+	}
 }
+$config=$db->getConfig();
+alterColumn($db,$config[0]->database,$db->getPrefix().'users','phone','varchar(16) DEFAULT NULL');
+
 $query= $db->select()->from('table.users')->where('name = ?', $cnphone); 
 $user = $db->fetchRow($query);
 if($user){
 	/*登录*/
 	$login=Typecho_Widget::widget('Widget_User');
-	if(!$login->login($cnphone,$pwd)){
+	if(!$login->login($user["name"],$pwd)){
 		$json=json_encode(array("error_code"=>-6,"message"=>"登陆失败，请检查密码是否正确"));
 		echo $json;
 		exit;
@@ -73,6 +76,18 @@ if($user){
 		echo $json;
 		exit;
 	}
+	if(strlen($pwd)<6){
+		$json=json_encode(array("error_code"=>-5,"message"=>"请输入长度不小于6位的密码"));
+		echo $json;
+		exit;
+	}
+	$query= $db->select()->from('table.users')->orWhere('phone = ?', $cnphone); 
+	$user = $db->fetchRow($query);
+	if($user){
+		$json=json_encode(array("error_code"=>-9,"message"=>"登陆失败，该手机号已被绑定。"));
+		echo $json;
+		exit;
+	}
 	$hasher = new PasswordHash(8, true);
 
 	$screenName= substr_replace($cnphone,'****',3,4);
@@ -83,7 +98,8 @@ if($user){
 		'screenName'=>  $screenName,
 		'password'  =>  $hasher->HashPassword($pwd),
 		'created'   =>  time(),
-		'group'     =>  'subscriber'
+		'group'     =>  'subscriber',
+		'phone'     =>  $cnphone
 	);
 	
 	$insert = $db->insert('table.users')->rows($dataStruct);
@@ -103,10 +119,15 @@ if($user){
 	echo $json;
 }
 /*重置短信验证码*/
-$randCode = '';
-$chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNPRSTUVWXYZ23456789';
-for ( $i = 0; $i < 5; $i++ ){
-	$randCode .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+$_SESSION['phonecode'] = mt_rand(100000,999999);
+
+/*修改数据表字段*/
+function alterColumn($db,$dbname,$table,$column,$define){
+	$prefix = $db->getPrefix();
+	$query= "select * from information_schema.columns WHERE TABLE_SCHEMA='".$dbname."' and table_name = '".$table."' AND column_name = '".$column."'";
+	$row = $db->fetchRow($query);
+	if(count($row)==0){
+		$db->query('ALTER TABLE `'.$table.'` ADD COLUMN `'.$column.'` '.$define.';');
+	}
 }
-$_SESSION['smscode'] = strtoupper($randCode);
 ?>

@@ -11,18 +11,8 @@ $themeOptions=$theme->getThemeOptions();
 $qq_url = '';
 $wb_url='';
 if(!empty($themeOptions["switch"]) && in_array('isQQLogin', $themeOptions["switch"])){
-	$configdir=dirname(__FILE__).'/../config/';
-	if(!is_dir($configdir)){
-		mkdir ($configdir, 0777, true );
-	}
-	$qqstate=md5(uniqid(rand(), TRUE));
-	file_put_contents($configdir.'config_oauth_qq.php','<?php die; ?>'.serialize(array(
-		'qq_appid'=>$themeOptions['qq_appid'],
-		'qq_appkey'=>$themeOptions['qq_appkey'],
-		'qq_callback'=>$themeOptions['qq_callback'],
-		'qqstate'=>$qqstate
-	)));
-	$qq_url = 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id='.$themeOptions['qq_appid'].'&redirect_uri='.urlencode($themeOptions['qq_callback']).'&state='.$qqstate;
+	$_SESSION["qqstate"]=md5(uniqid(rand(), TRUE));
+	$qq_url = 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id='.$themeOptions['qq_appid'].'&redirect_uri='.urlencode($themeOptions['qq_callback']).'&state='.$_SESSION["qqstate"];
 }
 if(!empty($themeOptions["switch"]) && in_array('isWeiboLogin', $themeOptions["switch"])){
 	include_once( '../libs/saetv2.ex.class.php' );

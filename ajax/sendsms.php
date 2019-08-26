@@ -9,6 +9,7 @@ use Aliyun\DySDKLite\SignatureHelper;
 use themeOptions;
 use smtp;
 use Typecho_Db;
+use PHPMailer;
 $theme = new themeOptions;
 $themeOptions=$theme->getThemeOptions();
 
@@ -22,23 +23,17 @@ if(strcasecmp($_SESSION['code'],$captcha)!=0){
 	exit;
 }
 
-//重置短信验证码
-$randCode = '';
-$chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNPRSTUVWXYZ23456789';
-for ( $i = 0; $i < 5; $i++ ){
-	$randCode .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
-}
-$_SESSION['smscode'] = strtoupper($randCode);
-
 switch($action){
 	case "phone":
+		$_SESSION[$action.'code'] = mt_rand(100000,999999);
 		if(empty($themeOptions["switch"]) || !in_array('isPhoneLogin', $themeOptions["switch"])){
 			$json=json_encode(array("error_code"=>-3,"message"=>"未开启手机号登陆"));
 			echo $json;
 			exit;
 		}
-		$result=sendPhoneSms($themeOptions["aliyun_accessKeyId"],$themeOptions["aliyun_accessKeySecret"],$themeOptions["aliyun_templatecode"],$themeOptions["aliyun_signname"],$cnphone,$_SESSION['smscode']);
+		$result=sendPhoneSms($themeOptions["aliyun_accessKeyId"],$themeOptions["aliyun_accessKeySecret"],$themeOptions["aliyun_templatecode"],$themeOptions["aliyun_signname"],$cnphone,$_SESSION[$action.'code']);
 		if($result->Code=="OK"){
+			$_SESSION['new'.$action] = $cnphone;
 			$json=json_encode(array("error_code"=>0,"message"=>"发送验证码成功"));
 			echo $json;
 		}else{
@@ -47,6 +42,7 @@ switch($action){
 		}
 		break;
 	case "mail":
+		$_SESSION[$action.'code'] = mt_rand(100000,999999);
 		if(empty($themeOptions["switch"]) || !in_array('isMailLogin', $themeOptions["switch"])){
 			$json=json_encode(array("error_code"=>-3,"message"=>"未开启邮箱登陆"));
 			echo $json;
@@ -55,8 +51,9 @@ switch($action){
 		$db = Typecho_Db::get();
 		$queryTitle= $db->select('value')->from('table.options')->where('name = ?', 'title'); 
 		$rowTitle = $db->fetchRow($queryTitle);
-		$result=sendMailSms($themeOptions["mailsmtp"],$themeOptions["mailport"],$themeOptions["mailuser"],$themeOptions["mailpass"],$cnphone,'【'.$rowTitle["value"].'】验证码','欢迎使用'.$rowTitle["value"].'验证码服务，您的验证码是：'.$_SESSION['smscode']);
+		$result=sendMailSms($themeOptions["mailsmtp"],$themeOptions["mailport"],$themeOptions["mailuser"],$themeOptions["mailpass"],$themeOptions["mailsecure"],$cnphone,'【'.$rowTitle["value"].'】验证码','欢迎使用'.$rowTitle["value"].'验证码服务，您的验证码是：'.$_SESSION[$action.'code']);
 		if($result){
+			$_SESSION['new'.$action] = $cnphone;
 			$json=json_encode(array("error_code"=>0,"message"=>"发送验证码成功"));
 			echo $json;
 		}else{
@@ -67,22 +64,28 @@ switch($action){
 }
 exit;
 /*发送邮件*/
-function sendMailSms($mailsmtp,$mailport,$mailuser,$mailpass,$email,$title,$content){
-	require __DIR__ . '/../libs/email.class.php';
-	$smtpserverport =$mailport;//SMTP服务器端口//企业QQ:465、126:25
-	$smtpserver = $mailsmtp;//SMTP服务器//QQ:ssl://smtp.exmail.qq.com、126:smtp.126.com
-	$smtpusermail = $mailuser;//SMTP服务器的用户邮箱
-	$smtpemailto = $email;//发送给谁
-	$smtpuser = $mailuser;//SMTP服务器的用户帐号
-	$smtppass = $mailpass;//SMTP服务器的用户密码
-	$mailtitle = $title;//邮件主题
-	$mailcontent = $content;//邮件内容
-	$mailtype = "HTML";//邮件格式（HTML/TXT）,TXT为文本邮件
-	//************************ 配置信息 ****************************
-	$smtp = new smtp($smtpserver,$smtpserverport,true,$smtpuser,$smtppass);//这里面的一个true是表示使用身份验证,否则不使用身份验证.
-	$smtp->debug = false;//是否显示发送的调试信息
-	$state = $smtp->sendmail($smtpemailto, $smtpusermail, $mailtitle, $mailcontent, $mailtype);
-	return $state;
+function sendMailSms($mailsmtp,$mailport,$mailuser,$mailpass,$mailsecure,$email,$title,$content){
+	require_once dirname(__FILE__).'/../libs/PHPMailer/PHPMailerAutoload.php';
+	$phpMailer = new PHPMailer();
+	$phpMailer->isSMTP();
+	$phpMailer->SMTPAuth = true;
+	$phpMailer->Host = $mailsmtp;
+	$phpMailer->Port = $mailport;
+	$phpMailer->Username = $mailuser;
+	$phpMailer->Password = $mailpass;
+	$phpMailer->isHTML(true);
+	if ('none' != $mailsecure) {
+		$phpMailer->SMTPSecure = $mailsecure;
+	}
+	$phpMailer->setFrom($mailuser, $title);
+	$phpMailer->addAddress($email, $email);
+	$phpMailer->Subject = $title;
+	$phpMailer->Body    = $content;
+	if(!$phpMailer->send()) {
+		return false;
+	} else {
+		return true;
+	}
 }
 /**
  * 发送短信

@@ -23,11 +23,6 @@ if(!preg_match("/([\w\-]+\@[\w\-]+\.[\w\-]+)/",$cnphone)){
 	echo $json;
 	exit;
 }
-if(strlen($pwd)<6){
-	$json=json_encode(array("error_code"=>-5,"message"=>"请输入长度不小于6位的密码"));
-	echo $json;
-	exit;
-}
 if(empty($themeOptions["switch"])||(!empty($themeOptions["switch"]) && in_array('isShowImgCode', $themeOptions["switch"]))){
 	if(isset($_SESSION['code'])&&strcasecmp($_SESSION['code'],$imgcode)!=0){
 		$json=json_encode(array("error_code"=>-7,"message"=>"图文验证码错误"));
@@ -36,18 +31,23 @@ if(empty($themeOptions["switch"])||(!empty($themeOptions["switch"]) && in_array(
 	}
 }
 if(empty($themeOptions["switch"])||(!empty($themeOptions["switch"]) && in_array('isShowSmsCode', $themeOptions["switch"]))){
-	if(isset($_SESSION['smscode'])&&strcasecmp($_SESSION['smscode'],$code)!=0){
+	if(isset($_SESSION['mailcode'])&&strcasecmp($_SESSION['mailcode'],$code)!=0){
 		$json=json_encode(array("error_code"=>-1,"message"=>"邮箱验证码错误"));
 		echo $json;
 		exit;
 	}
+	if (isset($_SESSION["newmail"])&&$cnphone!=$_SESSION["newmail"]) {
+		$json=json_encode(array("error_code"=>-8,"message"=>"填写手机号和发送验证码的手机号不一致"));
+		echo $json;
+		exit;
+	}
 }
-$query= $db->select()->from('table.users')->where('name = ?', $cnphone)->orWhere('mail = ?', $cnphone); 
+$query= $db->select()->from('table.users')->where('name = ?', $cnphone); 
 $user = $db->fetchRow($query);
 if($user){
 	/*登录*/
 	$login=Typecho_Widget::widget('Widget_User');
-	if(!$login->login($cnphone,$pwd)){
+	if(!$login->login($user["name"],$pwd)){
 		$json=json_encode(array("error_code"=>-6,"message"=>"登陆失败，请检查密码是否正确"));
 		echo $json;
 		exit;
@@ -70,6 +70,18 @@ if($user){
 }else{
 	if (!Typecho_Widget::widget('Widget_Options')->allowRegister) {
 		$json=json_encode(array("error_code"=>-3,"message"=>"不允许注册"));
+		echo $json;
+		exit;
+	}
+	if(strlen($pwd)<6){
+		$json=json_encode(array("error_code"=>-5,"message"=>"请输入长度不小于6位的密码"));
+		echo $json;
+		exit;
+	}
+	$query= $db->select()->from('table.users')->orWhere('mail = ?', $cnphone); 
+	$user = $db->fetchRow($query);
+	if($user){
+		$json=json_encode(array("error_code"=>-6,"message"=>"登陆失败，该邮箱已被绑定。"));
 		echo $json;
 		exit;
 	}
@@ -101,10 +113,5 @@ if($user){
 	echo $json;
 }
 /*重置短信验证码*/
-$randCode = '';
-$chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNPRSTUVWXYZ23456789';
-for ( $i = 0; $i < 5; $i++ ){
-	$randCode .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
-}
-$_SESSION['smscode'] = strtoupper($randCode);
+$_SESSION['mailcode'] = mt_rand(100000,999999);
 ?>
