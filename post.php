@@ -101,12 +101,15 @@ $this->need('header.php');
 	?>
 	<script>
 	$(function(){
-		$(".host_focus_done").click(function(){
-			layer.confirm('<center><font color="#aaa"><div>站长为作者贡献了<?=$rowPostCountOfAuthor["num"];?>篇文章</div><img src="<?=$this->options->dashang_qrcode;?>" alt="" width="200"><div>您的鼓励将是站长及作者前行的动力</div><div>谢谢打赏</div></font></center>', {
-				title:"打赏",
-				btn: ['关闭']
-			},function(index){
-				layer.close(index);
+		layui.use('layer', function(){
+			var $ = layui.jquery, layer = layui.layer;
+			$(".host_focus_done").click(function(){
+				layer.confirm('<center><font color="#aaa"><div>站长为作者贡献了<?=$rowPostCountOfAuthor["num"];?>篇文章</div><img src="<?=$this->options->dashang_qrcode;?>" alt="" width="200"><div>您的鼓励将是站长及作者前行的动力</div><div>谢谢打赏</div></font></center>', {
+					title:"打赏",
+					btn: ['关闭']
+				},function(index){
+					layer.close(index);
+				});
 			});
 		});
 	});

@@ -23,6 +23,7 @@
 		<link rel="stylesheet" href="<?php $this->options->themeUrl('assets/css/gift-show.css'); ?>">
 		<link rel="stylesheet" href="<?php $this->options->themeUrl('assets/css/style.css'); ?>">
 		<script src="https://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>
+		<script src="https://www.tongleer.com/api/web/include/layui/layui.js"></script>
 		<?php $this->header("generator=&commentReply="); ?>
 		<?php
 		if ($this->is('post')){

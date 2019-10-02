@@ -71,6 +71,10 @@ http://joke.tongleer.com
  - 本作者作为映客迷而开发的第二款仿映客网页的Typecho主题模板。
 
 # 版本记录
+2019-10-02 V1.0.5
+
+	修复因加载cloudflare的layer.js失效导致的bug。
+	
 2019-03-22
 
 	V1.0.2	修复了因cdn.bootcss.com中JS静态资源不可访问导致的js失效的问题。
